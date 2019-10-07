@@ -1,5 +1,8 @@
 package model;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,16 +21,6 @@ public class PatientBean {
 	   private JdbcRowSet rowSet = null;
 	   
 	   public PatientBean() {
-
-//		   try(Connection con = DriverManager.getConnection(DB_URL,DB_USER,DB_PASS)) {
-//		        String sqlQuery = "SELECT * FROM u5ms_db.t_patient;";
-//		        Statement statement = con.createStatement();
-//		        ResultSet result = statement.executeQuery(sqlQuery);
-//		        
-//		        while(result.next()) {
-//		        	Patient pPatient = new Patient(result.getInt("patientID"),String.valueOf(result.getInt("parent_fullname")),result.getString("child_fullname"), result.getString("email") ,result.getString("phone"), result.getString("address"));
-//		        	mPatients.add(pPatient);
-//		        }
 		      try {
 		          //Class.forName(JDBC_DRIVER);
 		          rowSet = RowSetProvider.newFactory().createJdbcRowSet();
@@ -45,9 +38,39 @@ public class PatientBean {
 	   
 	   
 	   public Patient create(Patient p) {
-		      try {
+		   
+		      try(Connection con = DriverManager.getConnection(DB_URL,DB_USER,DB_PASS)) {
+			        String sqlQuery = "INSERT INTO u5ms_db.t_patient (parent_fullname, child_fullname ,email, phone, address, weight, height, vaccinations) VALUES (?,?,?,?,?,?,?,?)";
+			       
+			        PreparedStatement statement = con.prepareStatement(sqlQuery);
+			        statement.setString(1, p.getParent_fullname());
+			        statement.setString(2, p.getChild_fullname());
+			        statement.setString(3, p.getEmail());
+			        statement.setString(4, p.getPhone());
+			        statement.setString(5, p.getAddress());
+			        statement.setString(6, p.getWeight());
+			        statement.setString(7, p.getHeight());
+			        statement.setString(8, p.getVaccinations());
+			        
+			        int rowsInserted = statement.executeUpdate();
+			        if(rowsInserted > 0) {
+			        	return p;
+			        }
+			      } catch (SQLException ex) {
+			         
+			    	  try {
+				            rowSet.rollback();
+				            p = null;
+				         } catch (SQLException e) {
+			
+				         }
+				         ex.printStackTrace();
+			      }
+			      return p;
+			   
+		     /* try {
 		         rowSet.moveToInsertRow();
-		         rowSet.updateInt("patientID", p.getPatientID());
+		         //rowSet.updateInt("patientID", p.getPatientID());
 		         rowSet.updateString("parent_fullname", p.getParent_fullname());
 		         rowSet.updateString("child_fullname", p.getChild_fullname());
 		         rowSet.updateString("email", p.getEmail());
@@ -64,27 +87,51 @@ public class PatientBean {
 		         }
 		         ex.printStackTrace();
 		      }
-		      return p;
+		      return p; */
 	   }
 
 	   public Patient update(Patient p) {
-	      try {
-	         rowSet.updateString("parent_fullname", p.getParent_fullname());
-	         rowSet.updateString("child_fullname", p.getChild_fullname());
-	         rowSet.updateString("email", p.getEmail());
-	         rowSet.updateString("phone", p.getPhone());
-	         rowSet.updateString("address", p.getAddress());
-	         rowSet.updateRow();
-	         rowSet.moveToCurrentRow();
-	      } catch (SQLException ex) {
-	         try {
-	            rowSet.rollback();
-	         } catch (SQLException e) {
-
-	         }
-	         ex.printStackTrace();
-	      }
-	      return p;
+		/*
+		 * try { rowSet.updateString("parent_fullname", p.getParent_fullname());
+		 * rowSet.updateString("child_fullname", p.getChild_fullname());
+		 * rowSet.updateString("email", p.getEmail()); rowSet.updateString("phone",
+		 * p.getPhone()); rowSet.updateString("address", p.getAddress());
+		 * rowSet.updateString("weight", p.getWeight()); rowSet.updateString("height",
+		 * p.getHeight()); rowSet.updateString("vaccinations", p.getVaccinations());
+		 * rowSet.updateRow(); rowSet.moveToCurrentRow(); } catch (SQLException ex) {
+		 * try { rowSet.rollback(); } catch (SQLException e) {
+		 * 
+		 * } ex.printStackTrace(); } return p;
+		 */
+		   try(Connection con = DriverManager.getConnection(DB_URL,DB_USER,DB_PASS)) {
+		        String sqlQuery = "UPDATE u5ms_db.t_patient SET parent_fullname = ?, child_fullname = ?, email = ?, phone = ?, address = ?, weight = ?, height = ?, vaccinations = ? WHERE patientID = ?";
+		    	  
+		        PreparedStatement statement = con.prepareStatement(sqlQuery);
+		        statement.setString(1, p.getParent_fullname());
+		        statement.setString(2, p.getChild_fullname());
+		        statement.setString(3, p.getEmail());
+		        statement.setString(4, p.getPhone());
+		        statement.setString(5, p.getAddress());
+		        statement.setString(6, p.getWeight());
+		        statement.setString(7, p.getHeight());
+		        statement.setString(8, p.getVaccinations());
+		        statement.setInt(9, p.getPatientID());
+		        
+		        int rowsInserted = statement.executeUpdate();
+		        if(rowsInserted > 0) {
+		        	return p;
+		        }
+		      } catch (SQLException ex) {
+		         
+		    	  try {
+			            rowSet.rollback();
+			            p = null;
+			         } catch (SQLException e) {
+		
+			         }
+			         ex.printStackTrace();
+		      }
+		      return p;
 	   }
 		   
 		   
@@ -114,6 +161,10 @@ public class PatientBean {
 	         p.setEmail(rowSet.getString("email"));
 	         p.setPhone(rowSet.getString("phone"));
 	         p.setAddress(rowSet.getString("address"));
+	         p.setWeight(rowSet.getString("weight"));
+	         p.setHeight(rowSet.getString("height"));
+	         p.setVaccinations(rowSet.getString("vaccinations"));
+	         
 
 	      } catch (SQLException ex) {
 	         ex.printStackTrace();
@@ -131,6 +182,9 @@ public class PatientBean {
 		         p.setEmail(rowSet.getString("email"));
 		         p.setPhone(rowSet.getString("phone"));
 		         p.setAddress(rowSet.getString("address"));
+		         p.setWeight(rowSet.getString("weight"));
+		         p.setHeight(rowSet.getString("height"));
+		         p.setVaccinations(rowSet.getString("vaccinations"));
 
 		      } catch (SQLException ex) {
 		         ex.printStackTrace();
@@ -149,6 +203,9 @@ public class PatientBean {
 		         p.setEmail(rowSet.getString("email"));
 		         p.setPhone(rowSet.getString("phone"));
 		         p.setAddress(rowSet.getString("address"));
+		         p.setWeight(rowSet.getString("weight"));
+		         p.setHeight(rowSet.getString("height"));
+		         p.setVaccinations(rowSet.getString("vaccinations"));
 
 		      } catch (SQLException ex) {
 		         ex.printStackTrace();
@@ -167,6 +224,9 @@ public class PatientBean {
 		         p.setEmail(rowSet.getString("email"));
 		         p.setPhone(rowSet.getString("phone"));
 		         p.setAddress(rowSet.getString("address"));
+		         p.setWeight(rowSet.getString("weight"));
+		         p.setHeight(rowSet.getString("height"));
+		         p.setVaccinations(rowSet.getString("vaccinations"));
 
 		      } catch (SQLException ex) {
 		         ex.printStackTrace();
@@ -184,6 +244,9 @@ public class PatientBean {
 		         p.setEmail(rowSet.getString("email"));
 		         p.setPhone(rowSet.getString("phone"));
 		         p.setAddress(rowSet.getString("address"));
+		         p.setWeight(rowSet.getString("weight"));
+		         p.setHeight(rowSet.getString("height"));
+		         p.setVaccinations(rowSet.getString("vaccinations"));
 		         
 		      } catch (SQLException ex) {
 		         ex.printStackTrace();

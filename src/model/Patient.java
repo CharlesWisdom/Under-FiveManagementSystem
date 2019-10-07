@@ -7,24 +7,33 @@ public class Patient {
 	   private String email;
 	   private String phone;
 	   private String address;
+	   private String weight;
+	   private String height;
+	   private String vaccinations;
 	   
-	public Patient(){}
+	   public Patient(){}
 	   	
-	public Patient(String pParent_fullname, String pChild_fullname, String pEmail, String pPhone, String pAddress){
+	public Patient(String pParent_fullname, String pChild_fullname, String pEmail, String pPhone, String pAddress, String pWeight, String pHeight, String pVaccinations){
 		parent_fullname = pParent_fullname;
 		child_fullname = pChild_fullname;
 		email = pEmail;
 		phone = pPhone;
 		address = pAddress;
+		weight = pWeight;
+		height = pHeight;
+		vaccinations = pVaccinations;
 	}
 	
-	public Patient(int pPatientID, String pParent_fullname, String pChild_fullname, String pEmail, String pPhone, String pAddress){
+	public Patient(int pPatientID, String pParent_fullname, String pChild_fullname, String pEmail, String pPhone, String pAddress, String pWeight, String pHeight, String pVaccinations){
 		patientID = pPatientID;
 		parent_fullname = pParent_fullname;
 		child_fullname = pChild_fullname;
 		email = pEmail;
 		phone = pPhone;
 		address = pAddress;
+		weight = pWeight;
+		height = pHeight;
+		vaccinations = pVaccinations;
 	}
 	
 	
@@ -68,6 +77,30 @@ public class Patient {
 	}
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public String getWeight() {
+		return weight;
+	}
+
+	public void setWeight(String weight) {
+		this.weight = weight;
+	}
+
+	public String getHeight() {
+		return height;
+	}
+
+	public void setHeight(String height) {
+		this.height = height;
+	}
+
+	public String getVaccinations() {
+		return vaccinations;
+	}
+
+	public void setVaccinations(String vaccinations) {
+		this.vaccinations = vaccinations;
 	}
 
 
